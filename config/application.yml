@@ -1,0 +1,10 @@
+server:
+  port: 8080
+datasource:
+  driverName: mysql
+  host: 127.0.0.1
+  port: 3306
+  database: gin_try
+  username: root
+  password: 123
+  charset: utf8
