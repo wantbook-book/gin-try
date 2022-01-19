@@ -17,9 +17,16 @@ func Register(ctx *gin.Context) {
 	db := common.GetDB()
 
 	//获取请求数据
-	name := ctx.PostForm("name")
-	telephone := ctx.PostForm("telephone")
-	password := ctx.PostForm("password")
+	//body 中的json数据
+	json := make(map[string]interface{})
+	ctx.BindJSON(&json)
+	log.Println(json)
+	name, _ := json["name"].(string)
+	telephone, _ := json["telephone"].(string)
+	password, _ := json["password"].(string)
+	//name := ctx.PostForm("name")
+	//telephone := ctx.PostForm("telephone")
+	//password := ctx.PostForm("password")
 
 	//验证数据合法性
 	if !(len(name) > 0) {
