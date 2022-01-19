@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"hannibal/gin-try/common"
+	"hannibal/gin-try/middleware"
 	"os"
 )
 
@@ -12,6 +13,7 @@ func main() {
 	common.InitDB()
 	//注册路由
 	r := gin.Default()
+	r.Use(middleware.CORSMiddleware())
 	r = CollectRoute(r)
 	//
 	if port := viper.GetString("server.port"); port != "" {
