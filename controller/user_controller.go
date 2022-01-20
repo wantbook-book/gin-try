@@ -75,8 +75,13 @@ func Login(ctx *gin.Context) {
 	//获取数据
 	db := common.GetDB()
 	//name := ctx.PostForm("name")
-	telephone := ctx.PostForm("telephone")
-	password := ctx.PostForm("password")
+	//获取请求数据
+	//body 中的json数据
+	json := make(map[string]interface{})
+	ctx.BindJSON(&json)
+	log.Println(json)
+	telephone, _ := json["telephone"].(string)
+	password, _ := json["password"].(string)
 	//核对数据
 	var user model.User
 	db.Where("telephone = ?", telephone).First(&user)
