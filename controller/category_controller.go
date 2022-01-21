@@ -6,6 +6,7 @@ import (
 	"hannibal/gin-try/common"
 	"hannibal/gin-try/model"
 	"hannibal/gin-try/response"
+	"hannibal/gin-try/vo"
 	"log"
 	"strconv"
 )
@@ -25,40 +26,42 @@ func NewCategoryController() ICategoryController {
 	return CategoryController{DB: db}
 }
 func (c CategoryController) Create(ctx *gin.Context) {
-	var requestCategory model.Category
+	var requestCategory vo.CreateCategoryRequest
 	//获取请求数据
-	ctx.Bind(&requestCategory)
-	//验证数据
-	log.Printf("%+v", requestCategory)
-	if requestCategory.Name == "" {
+	if err := ctx.ShouldBind(&requestCategory); err != nil {
+		//binding指定必须包含name，name=""就认为没有提供name
+		//验证数据
 		response.Fail(ctx, nil, "数据验证失败：分类名称必须不为空")
 		return
 	}
+	createCategory := model.Category{Name: requestCategory.Name}
 	//创建文章
-	c.DB.Create(&requestCategory)
-	//返回响应
-	response.Success(ctx, gin.H{"category": requestCategory}, "文章创建成功")
+	if result := c.DB.Create(&createCategory); result.RowsAffected == 0 || result.Error != nil {
+		//创建失败
+		response.Fail(ctx, nil, "创建失败")
+		return
+	} else {
+		//返回响应
+		response.Success(ctx, gin.H{"category": createCategory}, "文章创建成功")
+	}
+
 }
 
 func (c CategoryController) Update(ctx *gin.Context) {
-	var requestCategory model.Category
 	//获取分类id
 	id, _ := strconv.Atoi(ctx.Params.ByName("id"))
-	//获取分类名称更新数据
-	ctx.Bind(&requestCategory)
-
-	//检查数据合法性
 	//localhost:9000/categories/:id必然会有id，不然就404
-	//if id <= 0 {
-	//	//参数中id
-	//	response.Fail(ctx, nil, "数据验证错误：必须指定分类id")
-	//	return
-	//}
-	if requestCategory.Name == "" {
-		//分类名称为空，返回错误
-		response.Fail(ctx, nil, "数据验证错误：分类名称必须不为空")
+
+	//获取分类名称更新数据
+	var requestCategory vo.CreateCategoryRequest
+	//使用ctx.Bind 如果报错的话,返回的就是普通文本，后续的ctx.JSON不能对header的content-type进行重写
+	if err := ctx.ShouldBind(&requestCategory); err != nil {
+		//binding指定必须包含name，name=""就认为没有提供name
+		//验证数据
+		response.Fail(ctx, nil, "数据验证失败：分类名称必须不为空")
 		return
 	}
+
 	var dbCategory model.Category
 	//查询数据库,该id的文章是否存在
 	if result := c.DB.First(&dbCategory, id); result.Error != nil {
@@ -98,7 +101,7 @@ func (c CategoryController) Delete(ctx *gin.Context) {
 	//获取path中的id参数
 	id, _ := strconv.Atoi(ctx.Params.ByName("id"))
 	//从结构体 automigrate创建的表，先传结构体model参数可以指定删除的是哪张表
-	if result := c.DB.Delete(model.Category{}, id); result.Error != nil {
+	if result := c.DB.Delete(model.Category{}, id); result.Error != nil || result.RowsAffected == 0 {
 		//删除失败
 		log.Printf("%+v", result)
 		response.Fail(ctx, nil, "删除失败")
