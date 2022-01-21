@@ -2,12 +2,10 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-	"hannibal/gin-try/common"
 	"hannibal/gin-try/model"
+	"hannibal/gin-try/repository"
 	"hannibal/gin-try/response"
 	"hannibal/gin-try/vo"
-	"log"
 	"strconv"
 )
 
@@ -17,13 +15,15 @@ type ICategoryController interface {
 }
 
 type CategoryController struct {
-	DB *gorm.DB
+	//DB *gorm.DB
+	Repository repository.CategoryRepository
 }
 
 func NewCategoryController() ICategoryController {
-	db := common.GetDB()
-	db.AutoMigrate(model.Category{})
-	return CategoryController{DB: db}
+	//db := common.GetDB()
+	categoryRepository := repository.NewCategoryRepository()
+	categoryRepository.DB.AutoMigrate(model.Category{})
+	return CategoryController{Repository: categoryRepository}
 }
 func (c CategoryController) Create(ctx *gin.Context) {
 	var requestCategory vo.CreateCategoryRequest
@@ -34,9 +34,9 @@ func (c CategoryController) Create(ctx *gin.Context) {
 		response.Fail(ctx, nil, "数据验证失败：分类名称必须不为空")
 		return
 	}
-	createCategory := model.Category{Name: requestCategory.Name}
+
 	//创建文章
-	if result := c.DB.Create(&createCategory); result.RowsAffected == 0 || result.Error != nil {
+	if createCategory, err := c.Repository.Create(requestCategory.Name); err != nil {
 		//创建失败
 		response.Fail(ctx, nil, "创建失败")
 		return
@@ -62,19 +62,15 @@ func (c CategoryController) Update(ctx *gin.Context) {
 		return
 	}
 
-	var dbCategory model.Category
 	//查询数据库,该id的文章是否存在
-	if result := c.DB.First(&dbCategory, id); result.Error != nil {
-		//未能找到或其他错误
-		response.Fail(ctx, nil, "数据验证错误：未能找到分类")
+	category := model.Category{ID: uint(id)}
+	if dbCategory, err := c.Repository.Update(category, requestCategory.Name); err != nil {
+		//更新失败
+		response.Fail(ctx, nil, "数据验证错误：分类不存在")
 		return
 	} else {
-		//存在，更新对应id的文章
-		c.DB.Model(&dbCategory).Update("name", requestCategory.Name)
-
-		//返回响应
-		dbCategory.Name = requestCategory.Name
 		response.Success(ctx, gin.H{"category": dbCategory}, "更新文章成功")
+
 		return
 	}
 
@@ -84,10 +80,9 @@ func (c CategoryController) Show(ctx *gin.Context) {
 	//获取path中的id数据
 	id, _ := strconv.Atoi(ctx.Params.ByName("id"))
 	//数据库查询文章
-	var dbCategory model.Category
-	if result := c.DB.First(&dbCategory, id); result.Error != nil {
+	if dbCategory, err := c.Repository.SelectById(id); err != nil {
 		//文章不存在,返回
-		response.Fail(ctx, nil, "数据验证错误：未能找到分类")
+		response.Fail(ctx, nil, "数据验证错误：分类不存在")
 		return
 	} else {
 		//文章存在，返回
@@ -101,14 +96,12 @@ func (c CategoryController) Delete(ctx *gin.Context) {
 	//获取path中的id参数
 	id, _ := strconv.Atoi(ctx.Params.ByName("id"))
 	//从结构体 automigrate创建的表，先传结构体model参数可以指定删除的是哪张表
-	if result := c.DB.Delete(model.Category{}, id); result.Error != nil || result.RowsAffected == 0 {
+	if err := c.Repository.DeleteById(id); err != nil {
 		//删除失败
-		log.Printf("%+v", result)
 		response.Fail(ctx, nil, "删除失败")
 		return
 	} else {
 		//删除成功
-		log.Printf("%+v", result)
 		response.Success(ctx, nil, "删除成功")
 		return
 	}
