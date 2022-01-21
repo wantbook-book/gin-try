@@ -1047,55 +1047,141 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
     <user id="286" parent="1" name="root">
       <Host>localhost</Host>
     </user>
-    <table id="287" parent="276" name="users"/>
-    <column id="288" parent="287" name="id">
+    <table id="287" parent="276" name="categories"/>
+    <table id="288" parent="276" name="posts"/>
+    <table id="289" parent="276" name="users"/>
+    <column id="290" parent="287" name="id">
       <DataType>bigint unsigned|0s</DataType>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="289" parent="287" name="created_at">
-      <DataType>datetime(3)|0s</DataType>
+    <column id="291" parent="287" name="name">
+      <DataType>varchar(50)|0s</DataType>
+      <NotNull>1</NotNull>
       <Position>2</Position>
     </column>
-    <column id="290" parent="287" name="updated_at">
-      <DataType>datetime(3)|0s</DataType>
+    <column id="292" parent="287" name="created_at">
+      <DataType>timestamp|0s</DataType>
       <Position>3</Position>
     </column>
-    <column id="291" parent="287" name="deleted_at">
-      <DataType>datetime(3)|0s</DataType>
+    <column id="293" parent="287" name="updated_at">
+      <DataType>timestamp|0s</DataType>
       <Position>4</Position>
     </column>
-    <column id="292" parent="287" name="name">
-      <DataType>varchar(20)|0s</DataType>
-      <NotNull>1</NotNull>
-      <Position>5</Position>
-    </column>
-    <column id="293" parent="287" name="telephone">
-      <DataType>varchar(11)|0s</DataType>
-      <NotNull>1</NotNull>
-      <Position>6</Position>
-    </column>
-    <column id="294" parent="287" name="password">
-      <DataType>varchar(255)|0s</DataType>
-      <NotNull>1</NotNull>
-      <Position>7</Position>
-    </column>
-    <index id="295" parent="287" name="telephone">
-      <ColNames>telephone</ColNames>
+    <index id="294" parent="287" name="name">
+      <ColNames>name</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="296" parent="287" name="idx_users_deleted_at">
-      <ColNames>deleted_at</ColNames>
-      <Type>btree</Type>
-    </index>
-    <key id="297" parent="287" name="PRIMARY">
+    <key id="295" parent="287" name="PRIMARY">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
     </key>
-    <key id="298" parent="287" name="telephone">
+    <key id="296" parent="287" name="name">
+      <ColNames>name</ColNames>
+      <UnderlyingIndexName>name</UnderlyingIndexName>
+    </key>
+    <column id="297" parent="288" name="id">
+      <DataType>char(36)|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+    </column>
+    <column id="298" parent="288" name="user_id">
+      <DataType>bigint unsigned|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+    </column>
+    <column id="299" parent="288" name="category_id">
+      <DataType>bigint unsigned|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+    </column>
+    <column id="300" parent="288" name="title">
+      <DataType>varchar(50)|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>4</Position>
+    </column>
+    <column id="301" parent="288" name="head_img">
+      <DataType>longtext|0s</DataType>
+      <Position>5</Position>
+    </column>
+    <column id="302" parent="288" name="content">
+      <DataType>text|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+    </column>
+    <column id="303" parent="288" name="created_at">
+      <DataType>timestamp|0s</DataType>
+      <Position>7</Position>
+    </column>
+    <column id="304" parent="288" name="updated_at">
+      <DataType>timestamp|0s</DataType>
+      <Position>8</Position>
+    </column>
+    <foreign-key id="305" parent="288" name="fk_posts_category">
+      <ColNames>category_id</ColNames>
+      <RefColNames>id</RefColNames>
+      <RefTableName>categories</RefTableName>
+    </foreign-key>
+    <index id="306" parent="288" name="fk_posts_category">
+      <ColNames>category_id</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="307" parent="288" name="PRIMARY">
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Primary>1</Primary>
+    </key>
+    <column id="308" parent="289" name="id">
+      <DataType>bigint unsigned|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <SequenceIdentity>null</SequenceIdentity>
+    </column>
+    <column id="309" parent="289" name="created_at">
+      <DataType>datetime(3)|0s</DataType>
+      <Position>2</Position>
+    </column>
+    <column id="310" parent="289" name="updated_at">
+      <DataType>datetime(3)|0s</DataType>
+      <Position>3</Position>
+    </column>
+    <column id="311" parent="289" name="deleted_at">
+      <DataType>datetime(3)|0s</DataType>
+      <Position>4</Position>
+    </column>
+    <column id="312" parent="289" name="name">
+      <DataType>varchar(20)|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>5</Position>
+    </column>
+    <column id="313" parent="289" name="telephone">
+      <DataType>varchar(11)|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>6</Position>
+    </column>
+    <column id="314" parent="289" name="password">
+      <DataType>varchar(255)|0s</DataType>
+      <NotNull>1</NotNull>
+      <Position>7</Position>
+    </column>
+    <index id="315" parent="289" name="telephone">
+      <ColNames>telephone</ColNames>
+      <Type>btree</Type>
+      <Unique>1</Unique>
+    </index>
+    <index id="316" parent="289" name="idx_users_deleted_at">
+      <ColNames>deleted_at</ColNames>
+      <Type>btree</Type>
+    </index>
+    <key id="317" parent="289" name="PRIMARY">
+      <ColNames>id</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <Primary>1</Primary>
+    </key>
+    <key id="318" parent="289" name="telephone">
       <ColNames>telephone</ColNames>
       <UnderlyingIndexName>telephone</UnderlyingIndexName>
     </key>

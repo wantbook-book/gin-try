@@ -18,12 +18,19 @@ func Register(ctx *gin.Context) {
 
 	//获取请求数据
 	//body 中的json数据
-	json := make(map[string]interface{})
+	/*json := make(map[string]interface{})
 	ctx.BindJSON(&json)
 	log.Println(json)
 	name, _ := json["name"].(string)
 	telephone, _ := json["telephone"].(string)
-	password, _ := json["password"].(string)
+	password, _ := json["password"].(string)*/
+	//使用结构体
+	var user = new(model.User)
+	ctx.BindJSON(user)
+	name := user.Name
+	telephone := user.Telephone
+	password := user.Password
+	//form 中数据
 	//name := ctx.PostForm("name")
 	//telephone := ctx.PostForm("telephone")
 	//password := ctx.PostForm("password")
@@ -67,9 +74,14 @@ func Register(ctx *gin.Context) {
 	if result.Error != nil {
 		log.Println("failed to create user, err: ", result.Error.Error())
 	}
-	log.Println("name", name)
-	response.Success(ctx, nil, "注册成功")
-
+	log.Println("newuser: ", newUser)
+	//生成返回token
+	token, err := common.ReleaseToken(newUser)
+	if err != nil {
+		response.Response(ctx, http.StatusInternalServerError, 500, nil, "服务器生成jwt错误")
+		return
+	}
+	response.Response(ctx, http.StatusOK, 200, gin.H{"token": token}, "注册成功")
 }
 func Login(ctx *gin.Context) {
 	//获取数据

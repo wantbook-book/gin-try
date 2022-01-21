@@ -13,7 +13,7 @@ func main() {
 	common.InitDB()
 	//注册路由
 	r := gin.Default()
-	r.Use(middleware.CORSMiddleware())
+	r.Use(middleware.CORSMiddleware(), middleware.RecoveryMiddleware())
 	r = CollectRoute(r)
 	//
 	if port := viper.GetString("server.port"); port != "" {
